@@ -1,11 +1,11 @@
 // Configuration
 const config = {
-  radius: 30,
+  radius: 37,
   threshold: 0.85,
-  spacing: 50,
-  letterSpacing: 388,
+  spacing: 44,
+  letterSpacing: 424,
   scale: 0.5,
-  letterWidth: 0.95,
+  letterWidth: 1.0,
   letterHeight: 1.0,
   fillColor: '#000000',
   bgColor: '#ffffff',
@@ -495,10 +495,10 @@ function updateLetterControls() {
 function applyPreset(name) {
   const presets = {
     default: {
-      radius: 30,
+      radius: 37,
       threshold: 0.85,
-      spacing: 50,
-      letterSpacing: 388,
+      spacing: 44,
+      letterSpacing: 424,
       scale: 0.5,
       letterWidth: 0.95,
       letterHeight: 1.0,
