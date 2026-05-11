@@ -44,28 +44,33 @@ function getLetterBalls(letter, spacing, width = 1, height = 1, letterConfig = {
       const armLength = letterConfig.armLength ?? 1.0;
       const crossbarLength = letterConfig.crossbarLength ?? 0.8;
       return [
-        // Vertical stem
+        // Vertical stem (4 balls)
         { x: 0, y: 0 },
         { x: 0, y: sh },
         { x: 0, y: sh * 2 },
-        // Top horizontal
+        { x: 0, y: sh * 3 },
+        // Top horizontal (3 balls)
         { x: sw * armLength, y: 0 },
         { x: sw * 2 * armLength, y: 0 },
+        { x: sw * 3 * armLength, y: 0 },
         // Middle horizontal (crossbar position: 0=top, 1=bottom)
-        { x: sw * 2 * crossbarLength, y: sh * 2 * crossbar },
+        { x: sw * crossbarLength, y: sh * 3 * crossbar },
+        { x: sw * 2 * crossbarLength, y: sh * 3 * crossbar },
       ];
     }
 
     case 'L': {
       const footLength = letterConfig.footLength ?? 1.0;
       return [
-        // Vertical stem
+        // Vertical stem (4 balls)
         { x: 0, y: 0 },
         { x: 0, y: sh },
         { x: 0, y: sh * 2 },
-        // Bottom horizontal
-        { x: sw * footLength, y: sh * 2 },
-        { x: sw * 2 * footLength, y: sh * 2 },
+        { x: 0, y: sh * 3 },
+        // Bottom horizontal (3 balls)
+        { x: sw * footLength, y: sh * 3 },
+        { x: sw * 2 * footLength, y: sh * 3 },
+        { x: sw * 3 * footLength, y: sh * 3 },
       ];
     }
 
@@ -73,18 +78,22 @@ function getLetterBalls(letter, spacing, width = 1, height = 1, letterConfig = {
       const crossbar = letterConfig.crossbar ?? 0.5;
       const armLength = letterConfig.armLength ?? 1.0;
       return [
-        // Vertical stem
+        // Vertical stem (4 balls)
         { x: 0, y: 0 },
         { x: 0, y: sh },
         { x: 0, y: sh * 2 },
-        // Top horizontal
+        { x: 0, y: sh * 3 },
+        // Top horizontal (3 balls)
         { x: sw * armLength, y: 0 },
         { x: sw * 2 * armLength, y: 0 },
-        // Middle horizontal
-        { x: sw * armLength * 0.8, y: sh * 2 * crossbar },
-        // Bottom horizontal
-        { x: sw * armLength, y: sh * 2 },
-        { x: sw * 2 * armLength, y: sh * 2 },
+        { x: sw * 3 * armLength, y: 0 },
+        // Middle horizontal (2 balls)
+        { x: sw * armLength * 0.8, y: sh * 3 * crossbar },
+        { x: sw * 2 * armLength * 0.8, y: sh * 3 * crossbar },
+        // Bottom horizontal (3 balls)
+        { x: sw * armLength, y: sh * 3 },
+        { x: sw * 2 * armLength, y: sh * 3 },
+        { x: sw * 3 * armLength, y: sh * 3 },
       ];
     }
 
@@ -93,11 +102,11 @@ function getLetterBalls(letter, spacing, width = 1, height = 1, letterConfig = {
       const centerY = letterConfig.centerY ?? 0.5;
       const spread = letterConfig.spread ?? 1.0;
       return [
-        { x: sw * (1 - spread), y: sh * (1 - spread) },           // top-left
-        { x: sw * (1 + spread), y: sh * (1 - spread) },           // top-right
-        { x: sw * 2 * centerX, y: sh * 2 * centerY },             // center
-        { x: sw * (1 - spread), y: sh * (1 + spread) },           // bottom-left
-        { x: sw * (1 + spread), y: sh * (1 + spread) },           // bottom-right
+        { x: sw * (1.5 - 1.5 * spread), y: sh * (1.5 - 1.5 * spread) },   // top-left
+        { x: sw * (1.5 + 1.5 * spread), y: sh * (1.5 - 1.5 * spread) },   // top-right
+        { x: sw * 3 * centerX, y: sh * 3 * centerY },                     // center
+        { x: sw * (1.5 - 1.5 * spread), y: sh * (1.5 + 1.5 * spread) },   // bottom-left
+        { x: sw * (1.5 + 1.5 * spread), y: sh * (1.5 + 1.5 * spread) },   // bottom-right
       ];
     }
 
@@ -113,12 +122,12 @@ function calculateBalls() {
   const spacing = config.spacing;
   const w = config.letterWidth;
   const h = config.letterHeight;
-  const letterWidth = spacing * w * 2.5;
+  const letterWidth = spacing * w * 3.5;
 
   // Calculate total width
   const totalWidth = word.length * letterWidth + (word.length - 1) * (config.letterSpacing - letterWidth);
   const startX = (canvas.width - totalWidth) / 2;
-  const startY = (canvas.height - spacing * h * 2) / 2;
+  const startY = (canvas.height - spacing * h * 3) / 2;
 
   let currentX = startX;
 
