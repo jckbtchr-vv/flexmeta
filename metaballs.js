@@ -111,12 +111,21 @@ function getLetterBalls(letter, spacing, width = 1, height = 1, letterConfig = {
       const centerX = letterConfig.centerX ?? 0.5;
       const centerY = letterConfig.centerY ?? 0.5;
       const spread = letterConfig.spread ?? 1.0;
+      const cx = sw * 2;
+      const cy = sh * 2;
+      // 5 dots per diagonal (9 total, sharing center)
       return [
-        { x: sw * (2 - 2 * spread), y: sh * (2 - 2 * spread) },   // top-left
-        { x: sw * (2 + 2 * spread), y: sh * (2 - 2 * spread) },   // top-right
-        { x: sw * 4 * centerX, y: sh * 4 * centerY },             // center
-        { x: sw * (2 - 2 * spread), y: sh * (2 + 2 * spread) },   // bottom-left
-        { x: sw * (2 + 2 * spread), y: sh * (2 + 2 * spread) },   // bottom-right
+        // Top-left to bottom-right diagonal (5 dots)
+        { x: cx - sw * 2 * spread, y: cy - sh * 2 * spread },
+        { x: cx - sw * 1 * spread, y: cy - sh * 1 * spread },
+        { x: cx + (centerX - 0.5) * sw, y: cy + (centerY - 0.5) * sh },  // center
+        { x: cx + sw * 1 * spread, y: cy + sh * 1 * spread },
+        { x: cx + sw * 2 * spread, y: cy + sh * 2 * spread },
+        // Top-right to bottom-left diagonal (4 dots, center shared)
+        { x: cx + sw * 2 * spread, y: cy - sh * 2 * spread },
+        { x: cx + sw * 1 * spread, y: cy - sh * 1 * spread },
+        { x: cx - sw * 1 * spread, y: cy + sh * 1 * spread },
+        { x: cx - sw * 2 * spread, y: cy + sh * 2 * spread },
       ];
     }
 
