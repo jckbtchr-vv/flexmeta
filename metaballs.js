@@ -15,7 +15,7 @@ const config = {
   animAmount: 10,
   // Per-letter structural settings (0-1 normalized)
   letters: {
-    F: { crossbar: 0.5, armLength: 1.0 },
+    F: { crossbar: 0.5, armLength: 1.0, crossbarLength: 0.8 },
     L: { footLength: 1.0 },
     E: { crossbar: 0.5, armLength: 1.0 },
     X: { centerX: 0.5, centerY: 0.5, spread: 1.0 }
@@ -42,6 +42,7 @@ function getLetterBalls(letter, spacing, width = 1, height = 1, letterConfig = {
     case 'F': {
       const crossbar = letterConfig.crossbar ?? 0.5;
       const armLength = letterConfig.armLength ?? 1.0;
+      const crossbarLength = letterConfig.crossbarLength ?? 0.8;
       return [
         // Vertical stem
         { x: 0, y: 0 },
@@ -51,7 +52,7 @@ function getLetterBalls(letter, spacing, width = 1, height = 1, letterConfig = {
         { x: sw * armLength, y: 0 },
         { x: sw * 2 * armLength, y: 0 },
         // Middle horizontal (crossbar position: 0=top, 1=bottom)
-        { x: sw * armLength * 0.8, y: sh * 2 * crossbar },
+        { x: sw * 2 * crossbarLength, y: sh * 2 * crossbar },
       ];
     }
 
@@ -400,7 +401,7 @@ function setupControls() {
   });
 
   // Per-letter structural controls
-  setupLetterInputs('F', ['crossbar', 'armLength']);
+  setupLetterInputs('F', ['crossbar', 'armLength', 'crossbarLength']);
   setupLetterInputs('L', ['footLength']);
   setupLetterInputs('E', ['crossbar', 'armLength']);
   setupLetterInputs('X', ['centerX', 'centerY', 'spread']);
@@ -531,7 +532,7 @@ function resetToDefaults() {
 
   // Reset per-letter settings
   config.letters = {
-    F: { crossbar: 0.5, armLength: 1.0 },
+    F: { crossbar: 0.5, armLength: 1.0, crossbarLength: 0.8 },
     L: { footLength: 1.0 },
     E: { crossbar: 0.5, armLength: 1.0 },
     X: { centerX: 0.5, centerY: 0.5, spread: 1.0 }
@@ -564,7 +565,7 @@ render();
 
 function resetLetter() {
   const defaults = {
-    F: { crossbar: 0.5, armLength: 1.0 },
+    F: { crossbar: 0.5, armLength: 1.0, crossbarLength: 0.8 },
     L: { footLength: 1.0 },
     E: { crossbar: 0.5, armLength: 1.0 },
     X: { centerX: 0.5, centerY: 0.5, spread: 1.0 }
