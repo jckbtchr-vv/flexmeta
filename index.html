@@ -46,23 +46,38 @@
     @media (max-width: 768px) {
       body {
         flex-direction: column;
+        height: 100vh;
+        overflow: hidden;
       }
 
       .canvas-container {
-        min-height: 40vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 45vh;
+        min-height: 45vh;
         padding: 20px;
+        z-index: 10;
       }
 
       canvas {
-        max-height: 40vh;
+        max-height: 100%;
       }
 
       .dashboard {
+        position: fixed;
+        top: 45vh;
+        left: 0;
+        right: 0;
+        bottom: 0;
         width: 100%;
         max-height: none;
         border-left: none;
         border-top: 1px solid #333;
         padding: 20px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
       }
 
       .control-group input[type="range"] {
@@ -439,6 +454,6 @@
     </div>
   </div>
 
-  <script src="metaballs.js?v=2"></script>
+  <script src="metaballs.js?v=3"></script>
 </body>
 </html>
