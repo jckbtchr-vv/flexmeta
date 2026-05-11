@@ -575,6 +575,7 @@ window.addEventListener('resize', () => {
 
 resizeCanvas();
 setupControls();
+updateUIFromConfig();
 render();
 
 function resetLetter() {
