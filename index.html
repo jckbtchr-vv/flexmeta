@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FLEX Metaballs</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #fff;
+      color: #000;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    .canvas-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+    }
+
+    canvas {
+      max-width: 100%;
+      max-height: 100vh;
+    }
+
+    .dashboard {
+      width: 320px;
+      background: #111;
+      border-left: 1px solid #333;
+      padding: 24px;
+      overflow-y: auto;
+      max-height: 100vh;
+    }
+
+    .dashboard h1 {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      margin-bottom: 24px;
+      color: #666;
+    }
+
+    .control-group {
+      margin-bottom: 20px;
+    }
+
+    .control-group label {
+      display: block;
+      font-size: 12px;
+      color: #888;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .control-group input[type="range"] {
+      width: 100%;
+      height: 4px;
+      -webkit-appearance: none;
+      background: #333;
+      border-radius: 2px;
+      outline: none;
+    }
+
+    .control-group input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      background: #fff;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .control-group input[type="color"] {
+      width: 100%;
+      height: 40px;
+      border: none;
+      background: #222;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .control-group .value {
+      font-size: 11px;
+      color: #555;
+      margin-top: 4px;
+      text-align: right;
+    }
+
+    .section-title {
+      font-size: 11px;
+      color: #444;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin: 32px 0 16px;
+      padding-top: 16px;
+      border-top: 1px solid #222;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: #fff;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 8px;
+      margin-top: 24px;
+    }
+
+    button {
+      flex: 1;
+      padding: 12px;
+      background: #222;
+      border: 1px solid #333;
+      color: #fff;
+      font-size: 12px;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #333;
+    }
+
+    button.primary {
+      background: #fff;
+      color: #000;
+      border-color: #fff;
+    }
+
+    button.primary:hover {
+      background: #ccc;
+    }
+
+    .preset-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .preset-buttons button {
+      font-size: 11px;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas-container">
+    <canvas id="canvas"></canvas>
+  </div>
+
+  <div class="dashboard">
+    <h1>FLEX METABALLS</h1>
+
+    <div class="control-group">
+      <label>Ball Radius</label>
+      <input type="range" id="radius" min="10" max="80" value="35">
+      <div class="value" id="radius-value">35</div>
+    </div>
+
+    <div class="control-group">
+      <label>Threshold</label>
+      <input type="range" id="threshold" min="0.1" max="2" step="0.01" value="0.8">
+      <div class="value" id="threshold-value">0.8</div>
+    </div>
+
+    <div class="control-group">
+      <label>Ball Spacing</label>
+      <input type="range" id="spacing" min="20" max="100" value="50">
+      <div class="value" id="spacing-value">50</div>
+    </div>
+
+    <div class="control-group">
+      <label>Letter Spacing</label>
+      <input type="range" id="letterSpacing" min="50" max="300" value="160">
+      <div class="value" id="letterSpacing-value">160</div>
+    </div>
+
+    <div class="section-title">Appearance</div>
+
+    <div class="control-group">
+      <label>Fill Color</label>
+      <input type="color" id="fillColor" value="#000000">
+    </div>
+
+    <div class="control-group">
+      <label>Background</label>
+      <input type="color" id="bgColor" value="#ffffff">
+    </div>
+
+    <div class="control-group">
+      <label>Blur Amount</label>
+      <input type="range" id="blur" min="0" max="30" value="12">
+      <div class="value" id="blur-value">12</div>
+    </div>
+
+    <div class="control-group">
+      <label>Contrast</label>
+      <input type="range" id="contrast" min="1" max="50" value="20">
+      <div class="value" id="contrast-value">20</div>
+    </div>
+
+    <div class="section-title">Animation</div>
+
+    <div class="control-group checkbox-group">
+      <input type="checkbox" id="animate">
+      <label style="margin: 0;">Enable Animation</label>
+    </div>
+
+    <div class="control-group">
+      <label>Animation Speed</label>
+      <input type="range" id="animSpeed" min="0.1" max="3" step="0.1" value="1">
+      <div class="value" id="animSpeed-value">1</div>
+    </div>
+
+    <div class="control-group">
+      <label>Animation Amount</label>
+      <input type="range" id="animAmount" min="1" max="30" value="10">
+      <div class="value" id="animAmount-value">10</div>
+    </div>
+
+    <div class="section-title">Presets</div>
+
+    <div class="preset-buttons">
+      <button onclick="applyPreset('default')">Default</button>
+      <button onclick="applyPreset('tight')">Tight</button>
+      <button onclick="applyPreset('loose')">Loose</button>
+      <button onclick="applyPreset('gooey')">Gooey</button>
+    </div>
+
+    <div class="button-group">
+      <button onclick="exportPNG()">Export PNG</button>
+      <button class="primary" onclick="resetToDefaults()">Reset</button>
+    </div>
+  </div>
+
+  <script src="metaballs.js"></script>
+</body>
+</html>

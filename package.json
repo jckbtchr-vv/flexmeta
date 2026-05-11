@@ -1,0 +1,9 @@
+{
+  "name": "flexmeta",
+  "version": "1.0.0",
+  "description": "FLEX metaball visualization with configurable dashboard",
+  "scripts": {
+    "dev": "npx serve .",
+    "start": "npx serve ."
+  }
+}
