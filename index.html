@@ -277,28 +277,60 @@
     </div>
 
     <div class="letter-controls" id="letter-controls">
-      <div class="control-group">
-        <label>Offset X</label>
-        <input type="range" id="letter-offsetX" min="-50" max="50" value="0">
-        <div class="value" id="letter-offsetX-value">0</div>
+      <!-- F controls -->
+      <div class="letter-form-controls" id="controls-F">
+        <div class="control-group">
+          <label>Crossbar Position</label>
+          <input type="range" id="F-crossbar" min="0.2" max="0.8" step="0.05" value="0.5">
+          <div class="value" id="F-crossbar-value">0.5</div>
+        </div>
+        <div class="control-group">
+          <label>Arm Length</label>
+          <input type="range" id="F-armLength" min="0.5" max="1.5" step="0.05" value="1">
+          <div class="value" id="F-armLength-value">1</div>
+        </div>
       </div>
 
-      <div class="control-group">
-        <label>Offset Y</label>
-        <input type="range" id="letter-offsetY" min="-50" max="50" value="0">
-        <div class="value" id="letter-offsetY-value">0</div>
+      <!-- L controls -->
+      <div class="letter-form-controls" id="controls-L" style="display:none;">
+        <div class="control-group">
+          <label>Foot Length</label>
+          <input type="range" id="L-footLength" min="0.5" max="1.5" step="0.05" value="1">
+          <div class="value" id="L-footLength-value">1</div>
+        </div>
       </div>
 
-      <div class="control-group">
-        <label>Scale</label>
-        <input type="range" id="letter-scale" min="0.5" max="1.5" step="0.05" value="1">
-        <div class="value" id="letter-scale-value">1</div>
+      <!-- E controls -->
+      <div class="letter-form-controls" id="controls-E" style="display:none;">
+        <div class="control-group">
+          <label>Crossbar Position</label>
+          <input type="range" id="E-crossbar" min="0.2" max="0.8" step="0.05" value="0.5">
+          <div class="value" id="E-crossbar-value">0.5</div>
+        </div>
+        <div class="control-group">
+          <label>Arm Length</label>
+          <input type="range" id="E-armLength" min="0.5" max="1.5" step="0.05" value="1">
+          <div class="value" id="E-armLength-value">1</div>
+        </div>
       </div>
 
-      <div class="control-group">
-        <label>Rotation</label>
-        <input type="range" id="letter-rotation" min="-45" max="45" value="0">
-        <div class="value" id="letter-rotation-value">0°</div>
+      <!-- X controls -->
+      <div class="letter-form-controls" id="controls-X" style="display:none;">
+        <div class="control-group">
+          <label>Center X</label>
+          <input type="range" id="X-centerX" min="0.3" max="0.7" step="0.05" value="0.5">
+          <div class="value" id="X-centerX-value">0.5</div>
+        </div>
+        <div class="control-group">
+          <label>Center Y</label>
+          <input type="range" id="X-centerY" min="0.3" max="0.7" step="0.05" value="0.5">
+          <div class="value" id="X-centerY-value">0.5</div>
+        </div>
+        <div class="control-group">
+          <label>Corner Spread</label>
+          <input type="range" id="X-spread" min="0.5" max="1.2" step="0.05" value="1">
+          <div class="value" id="X-spread-value">1</div>
+        </div>
       </div>
 
       <button onclick="resetLetter()" style="width:100%; margin-top: 8px;">Reset Letter</button>

@@ -13,12 +13,12 @@ const config = {
   animate: false,
   animSpeed: 1,
   animAmount: 10,
-  // Per-letter settings
+  // Per-letter structural settings (0-1 normalized)
   letters: {
-    F: { offsetX: 0, offsetY: 0, scale: 1.0, rotation: 0 },
-    L: { offsetX: 0, offsetY: 0, scale: 1.0, rotation: 0 },
-    E: { offsetX: 0, offsetY: 0, scale: 1.0, rotation: 0 },
-    X: { offsetX: 0, offsetY: 0, scale: 1.0, rotation: 0 }
+    F: { crossbar: 0.5, armLength: 1.0 },
+    L: { footLength: 1.0 },
+    E: { crossbar: 0.5, armLength: 1.0 },
+    X: { centerX: 0.5, centerY: 0.5, spread: 1.0 }
   }
 };
 
@@ -34,60 +34,71 @@ function resizeCanvas() {
 
 // Letter definitions - each letter is an array of ball positions relative to letter origin
 // Positions are normalized (will be multiplied by spacing)
-function getLetterBalls(letter, spacing, width = 1, height = 1) {
+function getLetterBalls(letter, spacing, width = 1, height = 1, letterConfig = {}) {
   const sw = spacing * width;  // horizontal spacing
   const sh = spacing * height; // vertical spacing
 
   switch(letter) {
-    case 'F':
+    case 'F': {
+      const crossbar = letterConfig.crossbar ?? 0.5;
+      const armLength = letterConfig.armLength ?? 1.0;
       return [
         // Vertical stem
         { x: 0, y: 0 },
         { x: 0, y: sh },
         { x: 0, y: sh * 2 },
         // Top horizontal
-        { x: sw, y: 0 },
-        { x: sw * 2, y: 0 },
-        // Middle horizontal
-        { x: sw, y: sh },
+        { x: sw * armLength, y: 0 },
+        { x: sw * 2 * armLength, y: 0 },
+        // Middle horizontal (crossbar position: 0=top, 1=bottom)
+        { x: sw * armLength * 0.8, y: sh * 2 * crossbar },
       ];
+    }
 
-    case 'L':
+    case 'L': {
+      const footLength = letterConfig.footLength ?? 1.0;
       return [
         // Vertical stem
         { x: 0, y: 0 },
         { x: 0, y: sh },
         { x: 0, y: sh * 2 },
         // Bottom horizontal
-        { x: sw, y: sh * 2 },
-        { x: sw * 2, y: sh * 2 },
+        { x: sw * footLength, y: sh * 2 },
+        { x: sw * 2 * footLength, y: sh * 2 },
       ];
+    }
 
-    case 'E':
+    case 'E': {
+      const crossbar = letterConfig.crossbar ?? 0.5;
+      const armLength = letterConfig.armLength ?? 1.0;
       return [
         // Vertical stem
         { x: 0, y: 0 },
         { x: 0, y: sh },
         { x: 0, y: sh * 2 },
         // Top horizontal
-        { x: sw, y: 0 },
-        { x: sw * 2, y: 0 },
+        { x: sw * armLength, y: 0 },
+        { x: sw * 2 * armLength, y: 0 },
         // Middle horizontal
-        { x: sw, y: sh },
+        { x: sw * armLength * 0.8, y: sh * 2 * crossbar },
         // Bottom horizontal
-        { x: sw, y: sh * 2 },
-        { x: sw * 2, y: sh * 2 },
+        { x: sw * armLength, y: sh * 2 },
+        { x: sw * 2 * armLength, y: sh * 2 },
       ];
+    }
 
-    case 'X':
-      // Four corner balls that merge - like the reference image
+    case 'X': {
+      const centerX = letterConfig.centerX ?? 0.5;
+      const centerY = letterConfig.centerY ?? 0.5;
+      const spread = letterConfig.spread ?? 1.0;
       return [
-        { x: 0, y: 0 },             // top-left
-        { x: sw * 2, y: 0 },        // top-right
-        { x: sw, y: sh },           // center
-        { x: 0, y: sh * 2 },        // bottom-left
-        { x: sw * 2, y: sh * 2 },   // bottom-right
+        { x: sw * (1 - spread), y: sh * (1 - spread) },           // top-left
+        { x: sw * (1 + spread), y: sh * (1 - spread) },           // top-right
+        { x: sw * 2 * centerX, y: sh * 2 * centerY },             // center
+        { x: sw * (1 - spread), y: sh * (1 + spread) },           // bottom-left
+        { x: sw * (1 + spread), y: sh * (1 + spread) },           // bottom-right
       ];
+    }
 
     default:
       return [];
@@ -112,30 +123,11 @@ function calculateBalls() {
 
   for (const letter of word) {
     const letterConfig = config.letters[letter];
-    const scale = letterConfig.scale;
-    const rotation = letterConfig.rotation * Math.PI / 180;
-    const letterBalls = getLetterBalls(letter, spacing * scale, w, h);
-
-    // Calculate letter center for rotation
-    const centerX = spacing * w * scale;
-    const centerY = spacing * h * scale;
+    const letterBalls = getLetterBalls(letter, spacing, w, h, letterConfig);
 
     for (const ball of letterBalls) {
-      // Apply rotation around letter center
-      let rx = ball.x - centerX;
-      let ry = ball.y - centerY;
-
-      if (rotation !== 0) {
-        const cos = Math.cos(rotation);
-        const sin = Math.sin(rotation);
-        const newRx = rx * cos - ry * sin;
-        const newRy = rx * sin + ry * cos;
-        rx = newRx;
-        ry = newRy;
-      }
-
-      const finalX = currentX + rx + centerX + letterConfig.offsetX;
-      const finalY = startY + ry + centerY + letterConfig.offsetY;
+      const finalX = currentX + ball.x;
+      const finalY = startY + ball.y;
 
       balls.push({
         x: finalX,
@@ -407,17 +399,23 @@ function setupControls() {
     });
   });
 
-  // Per-letter controls
-  const letterControls = ['offsetX', 'offsetY', 'scale', 'rotation'];
-  letterControls.forEach(prop => {
-    const input = document.getElementById(`letter-${prop}`);
-    const valueDisplay = document.getElementById(`letter-${prop}-value`);
+  // Per-letter structural controls
+  setupLetterInputs('F', ['crossbar', 'armLength']);
+  setupLetterInputs('L', ['footLength']);
+  setupLetterInputs('E', ['crossbar', 'armLength']);
+  setupLetterInputs('X', ['centerX', 'centerY', 'spread']);
+}
+
+function setupLetterInputs(letter, props) {
+  props.forEach(prop => {
+    const input = document.getElementById(`${letter}-${prop}`);
+    const valueDisplay = document.getElementById(`${letter}-${prop}-value`);
 
     if (input) {
       input.addEventListener('input', () => {
-        config.letters[selectedLetter][prop] = parseFloat(input.value);
+        config.letters[letter][prop] = parseFloat(input.value);
         if (valueDisplay) {
-          valueDisplay.textContent = prop === 'rotation' ? `${input.value}°` : input.value;
+          valueDisplay.textContent = input.value;
         }
         render();
       });
@@ -426,19 +424,27 @@ function setupControls() {
 }
 
 function updateLetterControls() {
+  // Hide all letter control panels
+  document.querySelectorAll('.letter-form-controls').forEach(el => {
+    el.style.display = 'none';
+  });
+
+  // Show the selected letter's controls
+  const panel = document.getElementById(`controls-${selectedLetter}`);
+  if (panel) {
+    panel.style.display = 'block';
+  }
+
+  // Update input values
   const letterConfig = config.letters[selectedLetter];
-
-  document.getElementById('letter-offsetX').value = letterConfig.offsetX;
-  document.getElementById('letter-offsetX-value').textContent = letterConfig.offsetX;
-
-  document.getElementById('letter-offsetY').value = letterConfig.offsetY;
-  document.getElementById('letter-offsetY-value').textContent = letterConfig.offsetY;
-
-  document.getElementById('letter-scale').value = letterConfig.scale;
-  document.getElementById('letter-scale-value').textContent = letterConfig.scale;
-
-  document.getElementById('letter-rotation').value = letterConfig.rotation;
-  document.getElementById('letter-rotation-value').textContent = `${letterConfig.rotation}°`;
+  for (const [prop, value] of Object.entries(letterConfig)) {
+    const input = document.getElementById(`${selectedLetter}-${prop}`);
+    const valueDisplay = document.getElementById(`${selectedLetter}-${prop}-value`);
+    if (input) {
+      input.value = value;
+      if (valueDisplay) valueDisplay.textContent = value;
+    }
+  }
 }
 
 // Presets
@@ -524,9 +530,12 @@ function resetToDefaults() {
   config.animAmount = 10;
 
   // Reset per-letter settings
-  ['F', 'L', 'E', 'X'].forEach(letter => {
-    config.letters[letter] = { offsetX: 0, offsetY: 0, scale: 1.0, rotation: 0 };
-  });
+  config.letters = {
+    F: { crossbar: 0.5, armLength: 1.0 },
+    L: { footLength: 1.0 },
+    E: { crossbar: 0.5, armLength: 1.0 },
+    X: { centerX: 0.5, centerY: 0.5, spread: 1.0 }
+  };
 
   if (animationFrame) cancelAnimationFrame(animationFrame);
 
@@ -554,7 +563,13 @@ setupControls();
 render();
 
 function resetLetter() {
-  config.letters[selectedLetter] = { offsetX: 0, offsetY: 0, scale: 1.0, rotation: 0 };
+  const defaults = {
+    F: { crossbar: 0.5, armLength: 1.0 },
+    L: { footLength: 1.0 },
+    E: { crossbar: 0.5, armLength: 1.0 },
+    X: { centerX: 0.5, centerY: 0.5, spread: 1.0 }
+  };
+  config.letters[selectedLetter] = { ...defaults[selectedLetter] };
   updateLetterControls();
   render();
 }
