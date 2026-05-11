@@ -160,6 +160,43 @@
       font-size: 11px;
       padding: 10px;
     }
+
+    .letter-tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 16px;
+    }
+
+    .letter-tab {
+      flex: 1;
+      padding: 10px;
+      background: #222;
+      border: 1px solid #333;
+      color: #666;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    .letter-tab:hover {
+      background: #333;
+      color: #888;
+    }
+
+    .letter-tab.active {
+      background: #fff;
+      color: #000;
+      border-color: #fff;
+    }
+
+    .letter-controls {
+      background: #1a1a1a;
+      padding: 16px;
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
   </style>
 </head>
 <body>
@@ -194,6 +231,18 @@
       <div class="value" id="letterSpacing-value">160</div>
     </div>
 
+    <div class="control-group">
+      <label>Letter Width</label>
+      <input type="range" id="letterWidth" min="0.3" max="2" step="0.05" value="1">
+      <div class="value" id="letterWidth-value">1</div>
+    </div>
+
+    <div class="control-group">
+      <label>Letter Height</label>
+      <input type="range" id="letterHeight" min="0.3" max="2" step="0.05" value="1">
+      <div class="value" id="letterHeight-value">1</div>
+    </div>
+
     <div class="section-title">Appearance</div>
 
     <div class="control-group">
@@ -216,6 +265,41 @@
       <label>Contrast</label>
       <input type="range" id="contrast" min="1" max="50" value="20">
       <div class="value" id="contrast-value">20</div>
+    </div>
+
+    <div class="section-title">Per-Letter Controls</div>
+
+    <div class="letter-tabs">
+      <button class="letter-tab active" data-letter="F">F</button>
+      <button class="letter-tab" data-letter="L">L</button>
+      <button class="letter-tab" data-letter="E">E</button>
+      <button class="letter-tab" data-letter="X">X</button>
+    </div>
+
+    <div class="letter-controls" id="letter-controls">
+      <div class="control-group">
+        <label>Offset X</label>
+        <input type="range" id="letter-offsetX" min="-50" max="50" value="0">
+        <div class="value" id="letter-offsetX-value">0</div>
+      </div>
+
+      <div class="control-group">
+        <label>Offset Y</label>
+        <input type="range" id="letter-offsetY" min="-50" max="50" value="0">
+        <div class="value" id="letter-offsetY-value">0</div>
+      </div>
+
+      <div class="control-group">
+        <label>Scale</label>
+        <input type="range" id="letter-scale" min="0.5" max="1.5" step="0.05" value="1">
+        <div class="value" id="letter-scale-value">1</div>
+      </div>
+
+      <div class="control-group">
+        <label>Rotation</label>
+        <input type="range" id="letter-rotation" min="-45" max="45" value="0">
+        <div class="value" id="letter-rotation-value">0°</div>
+      </div>
     </div>
 
     <div class="section-title">Animation</div>

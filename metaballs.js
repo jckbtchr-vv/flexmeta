@@ -4,13 +4,22 @@ const config = {
   threshold: 0.8,
   spacing: 50,
   letterSpacing: 160,
+  letterWidth: 1.0,
+  letterHeight: 1.0,
   fillColor: '#000000',
   bgColor: '#ffffff',
   blur: 12,
   contrast: 20,
   animate: false,
   animSpeed: 1,
-  animAmount: 10
+  animAmount: 10,
+  // Per-letter settings
+  letters: {
+    F: { offsetX: 0, offsetY: 0, scale: 1.0, rotation: 0 },
+    L: { offsetX: 0, offsetY: 0, scale: 1.0, rotation: 0 },
+    E: { offsetX: 0, offsetY: 0, scale: 1.0, rotation: 0 },
+    X: { offsetX: 0, offsetY: 0, scale: 1.0, rotation: 0 }
+  }
 };
 
 const canvas = document.getElementById('canvas');
@@ -25,59 +34,59 @@ function resizeCanvas() {
 
 // Letter definitions - each letter is an array of ball positions relative to letter origin
 // Positions are normalized (will be multiplied by spacing)
-function getLetterBalls(letter, spacing) {
-  const s = spacing;
+function getLetterBalls(letter, spacing, width = 1, height = 1) {
+  const sw = spacing * width;  // horizontal spacing
+  const sh = spacing * height; // vertical spacing
 
-  // 1:1 ratio - letters are 2 units wide x 2 units tall
   switch(letter) {
     case 'F':
       return [
         // Vertical stem
         { x: 0, y: 0 },
-        { x: 0, y: s },
-        { x: 0, y: s * 2 },
+        { x: 0, y: sh },
+        { x: 0, y: sh * 2 },
         // Top horizontal
-        { x: s, y: 0 },
-        { x: s * 2, y: 0 },
+        { x: sw, y: 0 },
+        { x: sw * 2, y: 0 },
         // Middle horizontal
-        { x: s, y: s },
+        { x: sw, y: sh },
       ];
 
     case 'L':
       return [
         // Vertical stem
         { x: 0, y: 0 },
-        { x: 0, y: s },
-        { x: 0, y: s * 2 },
+        { x: 0, y: sh },
+        { x: 0, y: sh * 2 },
         // Bottom horizontal
-        { x: s, y: s * 2 },
-        { x: s * 2, y: s * 2 },
+        { x: sw, y: sh * 2 },
+        { x: sw * 2, y: sh * 2 },
       ];
 
     case 'E':
       return [
         // Vertical stem
         { x: 0, y: 0 },
-        { x: 0, y: s },
-        { x: 0, y: s * 2 },
+        { x: 0, y: sh },
+        { x: 0, y: sh * 2 },
         // Top horizontal
-        { x: s, y: 0 },
-        { x: s * 2, y: 0 },
+        { x: sw, y: 0 },
+        { x: sw * 2, y: 0 },
         // Middle horizontal
-        { x: s, y: s },
+        { x: sw, y: sh },
         // Bottom horizontal
-        { x: s, y: s * 2 },
-        { x: s * 2, y: s * 2 },
+        { x: sw, y: sh * 2 },
+        { x: sw * 2, y: sh * 2 },
       ];
 
     case 'X':
-      // Four corner balls that merge - like the reference image (1:1 square)
+      // Four corner balls that merge - like the reference image
       return [
-        { x: 0, y: 0 },           // top-left
-        { x: s * 2, y: 0 },       // top-right
-        { x: s, y: s },           // center
-        { x: 0, y: s * 2 },       // bottom-left
-        { x: s * 2, y: s * 2 },   // bottom-right
+        { x: 0, y: 0 },             // top-left
+        { x: sw * 2, y: 0 },        // top-right
+        { x: sw, y: sh },           // center
+        { x: 0, y: sh * 2 },        // bottom-left
+        { x: sw * 2, y: sh * 2 },   // bottom-right
       ];
 
     default:
@@ -90,24 +99,50 @@ function calculateBalls() {
   const word = 'FLEX';
   const balls = [];
   const spacing = config.spacing;
-  const letterWidth = spacing * 2.5;
+  const w = config.letterWidth;
+  const h = config.letterHeight;
+  const letterWidth = spacing * w * 2.5;
 
   // Calculate total width
   const totalWidth = word.length * letterWidth + (word.length - 1) * (config.letterSpacing - letterWidth);
   const startX = (canvas.width - totalWidth) / 2;
-  const startY = (canvas.height - spacing * 2) / 2;
+  const startY = (canvas.height - spacing * h * 2) / 2;
 
   let currentX = startX;
 
   for (const letter of word) {
-    const letterBalls = getLetterBalls(letter, spacing);
+    const letterConfig = config.letters[letter];
+    const scale = letterConfig.scale;
+    const rotation = letterConfig.rotation * Math.PI / 180;
+    const letterBalls = getLetterBalls(letter, spacing * scale, w, h);
+
+    // Calculate letter center for rotation
+    const centerX = spacing * w * scale;
+    const centerY = spacing * h * scale;
 
     for (const ball of letterBalls) {
+      // Apply rotation around letter center
+      let rx = ball.x - centerX;
+      let ry = ball.y - centerY;
+
+      if (rotation !== 0) {
+        const cos = Math.cos(rotation);
+        const sin = Math.sin(rotation);
+        const newRx = rx * cos - ry * sin;
+        const newRy = rx * sin + ry * cos;
+        rx = newRx;
+        ry = newRy;
+      }
+
+      const finalX = currentX + rx + centerX + letterConfig.offsetX;
+      const finalY = startY + ry + centerY + letterConfig.offsetY;
+
       balls.push({
-        x: currentX + ball.x,
-        y: startY + ball.y,
-        baseX: currentX + ball.x,
-        baseY: startY + ball.y
+        x: finalX,
+        y: finalY,
+        baseX: finalX,
+        baseY: finalY,
+        letter: letter
       });
     }
 
@@ -316,9 +351,12 @@ function render() {
 }
 
 // UI Controls
+let selectedLetter = 'F';
+
 function setupControls() {
   const controls = [
     'radius', 'threshold', 'spacing', 'letterSpacing',
+    'letterWidth', 'letterHeight',
     'blur', 'contrast', 'animSpeed', 'animAmount'
   ];
 
@@ -326,11 +364,13 @@ function setupControls() {
     const input = document.getElementById(id);
     const valueDisplay = document.getElementById(`${id}-value`);
 
-    input.addEventListener('input', () => {
-      config[id] = parseFloat(input.value);
-      if (valueDisplay) valueDisplay.textContent = input.value;
-      render();
-    });
+    if (input) {
+      input.addEventListener('input', () => {
+        config[id] = parseFloat(input.value);
+        if (valueDisplay) valueDisplay.textContent = input.value;
+        render();
+      });
+    }
   });
 
   // Color inputs
@@ -356,6 +396,49 @@ function setupControls() {
       render();
     }
   });
+
+  // Letter tabs
+  document.querySelectorAll('.letter-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.letter-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      selectedLetter = tab.dataset.letter;
+      updateLetterControls();
+    });
+  });
+
+  // Per-letter controls
+  const letterControls = ['offsetX', 'offsetY', 'scale', 'rotation'];
+  letterControls.forEach(prop => {
+    const input = document.getElementById(`letter-${prop}`);
+    const valueDisplay = document.getElementById(`letter-${prop}-value`);
+
+    if (input) {
+      input.addEventListener('input', () => {
+        config.letters[selectedLetter][prop] = parseFloat(input.value);
+        if (valueDisplay) {
+          valueDisplay.textContent = prop === 'rotation' ? `${input.value}°` : input.value;
+        }
+        render();
+      });
+    }
+  });
+}
+
+function updateLetterControls() {
+  const letterConfig = config.letters[selectedLetter];
+
+  document.getElementById('letter-offsetX').value = letterConfig.offsetX;
+  document.getElementById('letter-offsetX-value').textContent = letterConfig.offsetX;
+
+  document.getElementById('letter-offsetY').value = letterConfig.offsetY;
+  document.getElementById('letter-offsetY-value').textContent = letterConfig.offsetY;
+
+  document.getElementById('letter-scale').value = letterConfig.scale;
+  document.getElementById('letter-scale-value').textContent = letterConfig.scale;
+
+  document.getElementById('letter-rotation').value = letterConfig.rotation;
+  document.getElementById('letter-rotation-value').textContent = `${letterConfig.rotation}°`;
 }
 
 // Presets
@@ -366,6 +449,8 @@ function applyPreset(name) {
       threshold: 0.8,
       spacing: 50,
       letterSpacing: 160,
+      letterWidth: 1.0,
+      letterHeight: 1.0,
       blur: 12,
       contrast: 20
     },
@@ -374,6 +459,8 @@ function applyPreset(name) {
       threshold: 1.0,
       spacing: 35,
       letterSpacing: 120,
+      letterWidth: 0.8,
+      letterHeight: 1.0,
       blur: 8,
       contrast: 25
     },
@@ -382,6 +469,8 @@ function applyPreset(name) {
       threshold: 0.6,
       spacing: 65,
       letterSpacing: 200,
+      letterWidth: 1.2,
+      letterHeight: 1.0,
       blur: 15,
       contrast: 18
     },
@@ -390,6 +479,8 @@ function applyPreset(name) {
       threshold: 0.5,
       spacing: 55,
       letterSpacing: 170,
+      letterWidth: 1.0,
+      letterHeight: 1.0,
       blur: 20,
       contrast: 30
     }
@@ -404,7 +495,7 @@ function applyPreset(name) {
 }
 
 function updateUIFromConfig() {
-  const controls = ['radius', 'threshold', 'spacing', 'letterSpacing', 'blur', 'contrast', 'animSpeed', 'animAmount'];
+  const controls = ['radius', 'threshold', 'spacing', 'letterSpacing', 'letterWidth', 'letterHeight', 'blur', 'contrast', 'animSpeed', 'animAmount'];
 
   controls.forEach(id => {
     const input = document.getElementById(id);
@@ -418,15 +509,24 @@ function updateUIFromConfig() {
   document.getElementById('fillColor').value = config.fillColor;
   document.getElementById('bgColor').value = config.bgColor;
   document.getElementById('animate').checked = config.animate;
+
+  updateLetterControls();
 }
 
 function resetToDefaults() {
   applyPreset('default');
   config.fillColor = '#000000';
   config.bgColor = '#ffffff';
+  config.letterWidth = 1.0;
+  config.letterHeight = 1.0;
   config.animate = false;
   config.animSpeed = 1;
   config.animAmount = 10;
+
+  // Reset per-letter settings
+  ['F', 'L', 'E', 'X'].forEach(letter => {
+    config.letters[letter] = { offsetX: 0, offsetY: 0, scale: 1.0, rotation: 0 };
+  });
 
   if (animationFrame) cancelAnimationFrame(animationFrame);
 
