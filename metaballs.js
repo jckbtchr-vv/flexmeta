@@ -4,6 +4,7 @@ const config = {
   threshold: 0.8,
   spacing: 50,
   letterSpacing: 160,
+  scale: 1.0,
   letterWidth: 1.0,
   letterHeight: 1.0,
   fillColor: '#000000',
@@ -119,13 +120,15 @@ function getLetterBalls(letter, spacing, width = 1, height = 1, letterConfig = {
 function calculateBalls() {
   const word = 'FLEX';
   const balls = [];
-  const spacing = config.spacing;
+  const scale = config.scale;
+  const spacing = config.spacing * scale;
   const w = config.letterWidth;
   const h = config.letterHeight;
   const letterWidth = spacing * w * 3.5;
+  const scaledLetterSpacing = config.letterSpacing * scale;
 
   // Calculate total width
-  const totalWidth = word.length * letterWidth + (word.length - 1) * (config.letterSpacing - letterWidth);
+  const totalWidth = word.length * letterWidth + (word.length - 1) * (scaledLetterSpacing - letterWidth);
   const startX = (canvas.width - totalWidth) / 2;
   const startY = (canvas.height - spacing * h * 3) / 2;
 
@@ -148,7 +151,7 @@ function calculateBalls() {
       });
     }
 
-    currentX += config.letterSpacing;
+    currentX += scaledLetterSpacing;
   }
 
   return balls;
@@ -357,7 +360,7 @@ let selectedLetter = 'F';
 
 function setupControls() {
   const controls = [
-    'radius', 'threshold', 'spacing', 'letterSpacing',
+    'radius', 'threshold', 'spacing', 'letterSpacing', 'scale',
     'letterWidth', 'letterHeight',
     'blur', 'contrast', 'animSpeed', 'animAmount'
   ];
@@ -511,7 +514,7 @@ function applyPreset(name) {
 }
 
 function updateUIFromConfig() {
-  const controls = ['radius', 'threshold', 'spacing', 'letterSpacing', 'letterWidth', 'letterHeight', 'blur', 'contrast', 'animSpeed', 'animAmount'];
+  const controls = ['radius', 'threshold', 'spacing', 'letterSpacing', 'scale', 'letterWidth', 'letterHeight', 'blur', 'contrast', 'animSpeed', 'animAmount'];
 
   controls.forEach(id => {
     const input = document.getElementById(id);
@@ -533,6 +536,7 @@ function resetToDefaults() {
   applyPreset('default');
   config.fillColor = '#000000';
   config.bgColor = '#ffffff';
+  config.scale = 1.0;
   config.letterWidth = 1.0;
   config.letterHeight = 1.0;
   config.animate = false;
