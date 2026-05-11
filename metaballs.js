@@ -18,7 +18,7 @@ const config = {
   letters: {
     F: { crossbar: 0.5, armLength: 1.0, crossbarLength: 0.8 },
     L: { footLength: 1.0 },
-    E: { crossbar: 0.5, armLength: 1.0 },
+    E: { crossbar: 0.5, armLength: 1.0, crossbarLength: 0.8 },
     X: { centerX: 0.5, centerY: 0.5, spread: 1.0 }
   }
 };
@@ -83,6 +83,7 @@ function getLetterBalls(letter, spacing, width = 1, height = 1, letterConfig = {
     case 'E': {
       const crossbar = letterConfig.crossbar ?? 0.5;
       const armLength = letterConfig.armLength ?? 1.0;
+      const crossbarLength = letterConfig.crossbarLength ?? 0.8;
       return [
         // Vertical stem (5 balls)
         { x: 0, y: 0 },
@@ -96,9 +97,9 @@ function getLetterBalls(letter, spacing, width = 1, height = 1, letterConfig = {
         { x: sw * 3 * armLength, y: 0 },
         { x: sw * 4 * armLength, y: 0 },
         // Middle horizontal (3 balls)
-        { x: sw * armLength * 0.8, y: sh * 4 * crossbar },
-        { x: sw * 2 * armLength * 0.8, y: sh * 4 * crossbar },
-        { x: sw * 3 * armLength * 0.8, y: sh * 4 * crossbar },
+        { x: sw * crossbarLength, y: sh * 4 * crossbar },
+        { x: sw * 2 * crossbarLength, y: sh * 4 * crossbar },
+        { x: sw * 3 * crossbarLength, y: sh * 4 * crossbar },
         // Bottom horizontal (4 balls)
         { x: sw * armLength, y: sh * 4 },
         { x: sw * 2 * armLength, y: sh * 4 },
@@ -446,7 +447,7 @@ function setupControls() {
   // Per-letter structural controls
   setupLetterInputs('F', ['crossbar', 'armLength', 'crossbarLength']);
   setupLetterInputs('L', ['footLength']);
-  setupLetterInputs('E', ['crossbar', 'armLength']);
+  setupLetterInputs('E', ['crossbar', 'armLength', 'crossbarLength']);
   setupLetterInputs('X', ['centerX', 'centerY', 'spread']);
 }
 
@@ -579,7 +580,7 @@ function resetToDefaults() {
   config.letters = {
     F: { crossbar: 0.5, armLength: 1.0, crossbarLength: 0.8 },
     L: { footLength: 1.0 },
-    E: { crossbar: 0.5, armLength: 1.0 },
+    E: { crossbar: 0.5, armLength: 1.0, crossbarLength: 0.8 },
     X: { centerX: 0.5, centerY: 0.5, spread: 1.0 }
   };
 
@@ -613,7 +614,7 @@ function resetLetter() {
   const defaults = {
     F: { crossbar: 0.5, armLength: 1.0, crossbarLength: 0.8 },
     L: { footLength: 1.0 },
-    E: { crossbar: 0.5, armLength: 1.0 },
+    E: { crossbar: 0.5, armLength: 1.0, crossbarLength: 0.8 },
     X: { centerX: 0.5, centerY: 0.5, spread: 1.0 }
   };
   config.letters[selectedLetter] = { ...defaults[selectedLetter] };
