@@ -4,7 +4,7 @@ const config = {
   threshold: 0.85,
   spacing: 50,
   letterSpacing: 388,
-  scale: 0.3,
+  scale: 0.5,
   letterWidth: 0.95,
   letterHeight: 1.0,
   fillColor: '#000000',
@@ -120,7 +120,11 @@ function getLetterBalls(letter, spacing, width = 1, height = 1, letterConfig = {
 function calculateBalls() {
   const word = 'FLEX';
   const balls = [];
-  const scale = config.scale;
+
+  // Auto-scale based on canvas size (use 1200 as reference width)
+  const canvasScale = Math.min(canvas.width / 1200, canvas.height / 600);
+  const scale = config.scale * canvasScale;
+
   const spacing = config.spacing * scale;
   const w = config.letterWidth;
   const h = config.letterHeight;
@@ -147,14 +151,15 @@ function calculateBalls() {
         y: finalY,
         baseX: finalX,
         baseY: finalY,
-        letter: letter
+        letter: letter,
+        scale: canvasScale
       });
     }
 
     currentX += scaledLetterSpacing;
   }
 
-  return balls;
+  return { balls, canvasScale };
 }
 
 // Metaball field function
@@ -173,7 +178,9 @@ function metaballField(x, y, balls, radius) {
 
 // Render using CSS filter technique for smooth metaballs
 function renderWithFilter() {
-  const balls = calculateBalls();
+  const { balls, canvasScale } = calculateBalls();
+  const scaledRadius = config.radius * canvasScale;
+  const scaledBlur = config.blur * canvasScale;
 
   // Clear with background
   ctx.fillStyle = config.bgColor;
@@ -193,12 +200,12 @@ function renderWithFilter() {
   offCtx.fillStyle = config.fillColor;
   for (const ball of balls) {
     offCtx.beginPath();
-    offCtx.arc(ball.x, ball.y, config.radius, 0, Math.PI * 2);
+    offCtx.arc(ball.x, ball.y, scaledRadius, 0, Math.PI * 2);
     offCtx.fill();
   }
 
   // Apply blur
-  offCtx.filter = `blur(${config.blur}px)`;
+  offCtx.filter = `blur(${scaledBlur}px)`;
   offCtx.drawImage(offscreen, 0, 0);
   offCtx.filter = 'none';
 
@@ -305,19 +312,25 @@ function animate() {
     animationTime += 0.016 * config.animSpeed;
 
     // Update ball positions with animation
-    balls = calculateBalls();
+    const { balls: calculatedBalls, canvasScale } = calculateBalls();
+    balls = calculatedBalls;
+    const scaledAnimAmount = config.animAmount * canvasScale;
+
     for (let i = 0; i < balls.length; i++) {
       const offset = i * 0.5;
-      balls[i].x = balls[i].baseX + Math.sin(animationTime + offset) * config.animAmount;
-      balls[i].y = balls[i].baseY + Math.cos(animationTime * 0.7 + offset) * config.animAmount * 0.5;
+      balls[i].x = balls[i].baseX + Math.sin(animationTime + offset) * scaledAnimAmount;
+      balls[i].y = balls[i].baseY + Math.cos(animationTime * 0.7 + offset) * scaledAnimAmount * 0.5;
     }
 
-    renderAnimated(balls);
+    renderAnimated(balls, canvasScale);
     animationFrame = requestAnimationFrame(animate);
   }
 }
 
-function renderAnimated(balls) {
+function renderAnimated(balls, canvasScale) {
+  const scaledRadius = config.radius * canvasScale;
+  const scaledBlur = config.blur * canvasScale;
+
   // Clear with background
   ctx.fillStyle = config.bgColor;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -335,12 +348,12 @@ function renderAnimated(balls) {
   offCtx.fillStyle = config.fillColor;
   for (const ball of balls) {
     offCtx.beginPath();
-    offCtx.arc(ball.x, ball.y, config.radius, 0, Math.PI * 2);
+    offCtx.arc(ball.x, ball.y, scaledRadius, 0, Math.PI * 2);
     offCtx.fill();
   }
 
   // Apply blur
-  offCtx.filter = `blur(${config.blur}px)`;
+  offCtx.filter = `blur(${scaledBlur}px)`;
   offCtx.drawImage(offscreen, 0, 0);
   offCtx.filter = 'none';
 
@@ -468,7 +481,7 @@ function applyPreset(name) {
       threshold: 0.85,
       spacing: 50,
       letterSpacing: 388,
-      scale: 0.3,
+      scale: 0.5,
       letterWidth: 0.95,
       letterHeight: 1.0,
       blur: 12,
