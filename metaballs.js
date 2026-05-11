@@ -553,7 +553,14 @@ resizeCanvas();
 setupControls();
 render();
 
+function resetLetter() {
+  config.letters[selectedLetter] = { offsetX: 0, offsetY: 0, scale: 1.0, rotation: 0 };
+  updateLetterControls();
+  render();
+}
+
 // Make functions globally available
 window.applyPreset = applyPreset;
 window.resetToDefaults = resetToDefaults;
+window.resetLetter = resetLetter;
 window.exportPNG = exportPNG;
